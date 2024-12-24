@@ -1,20 +1,24 @@
-import React, { useEffect,useState } from 'react'
-import { useChatStore } from '../store/useChatStore'
-import {useAuthStore} from '../store/useAuthStore.js'
+import { useEffect, useState } from "react";
+import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
-import { Users } from 'lucide-react'
+import { Users } from "lucide-react";
 
 const Sidebar = () => {
-    const {getUsers,users,selectedUser,setSelectedUser,isUsersLoading}=useChatStore()
+  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
 
-    const {onlineUsers} = useAuthStore()
+  const { onlineUsers } = useAuthStore();
+  const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
-    useEffect(()=>{
-        getUsers()
-    },[getUsers])
+  useEffect(() => {
+    getUsers();
+  }, [getUsers]);
 
-    if(isUsersLoading) return <SidebarSkeleton/>
+  const filteredUsers = showOnlineOnly
+    ? users.filter((user) => onlineUsers.includes(user._id))
+    : users;
 
+  if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
@@ -78,7 +82,6 @@ const Sidebar = () => {
         )}
       </div>
     </aside>
-  )
-}
-
-export default Sidebar
+  );
+};
+export default Sidebar;

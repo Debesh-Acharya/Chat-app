@@ -1,19 +1,37 @@
-import React,{useEffect} from 'react'
-import {useChatStore} from '../store/useChatStore.js'
-import ChatHeader from './ChatHeader.jsx'
-import MessageInput from './MessageInput.jsx'
-import MessageSkeleton from './skeletons/MessageSkeleton.jsx'
-import { useAuthStore } from '../store/useAuthStore.js'
+import { useChatStore } from "../store/useChatStore";
+import { useEffect, useRef } from "react";
+
+import ChatHeader from "./ChatHeader";
+import MessageInput from "./MessageInput";
+import MessageSkeleton from "./skeletons/MessageSkeleton";
+import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
 
 const ChatContainer = () => {
-  const {messages,getMessages,isMessagesLoading,selectedUser} = useChatStore()
-
-  const {authUser}=useAuthStore()
+  const {
+    messages,
+    getMessages,
+    isMessagesLoading,
+    selectedUser,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  } = useChatStore();
+  const { authUser } = useAuthStore();
+  const messageEndRef = useRef(null);
 
   useEffect(() => {
-    getMessages(selectedUser._id)
-  }, [selectedUser._id,getMessages])
+    getMessages(selectedUser._id);
+
+    subscribeToMessages();
+
+    return () => unsubscribeFromMessages();
+  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+
+  useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   if (isMessagesLoading) {
     return (
@@ -25,8 +43,6 @@ const ChatContainer = () => {
     );
   }
 
-  
-  
   return (
     <div className="flex-1 flex flex-col overflow-auto">
       <ChatHeader />
@@ -71,7 +87,6 @@ const ChatContainer = () => {
 
       <MessageInput />
     </div>
-  )
-}
-
-export default ChatContainer
+  );
+};
+export default ChatContainer;
