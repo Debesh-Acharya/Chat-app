@@ -17,11 +17,10 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
-
       set({ authUser: res.data });
       get().connectSocket();
     } catch (error) {
-      console.log("Error in checkAuth:", error);
+      console.error("Error in checkAuth:", error);
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
@@ -36,7 +35,12 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Account created successfully");
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response.data.message);
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message);
+      } else {
+        console.error("Unexpected error structure:", error);
+        toast.error("Signup failed: Unexpected error");
+      }
     } finally {
       set({ isSigningUp: false });
     }
@@ -46,12 +50,26 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/login", data);
-      set({ authUser: res.data });
-      toast.success("Logged in successfully");
-
-      get().connectSocket();
+      if (res && res.data) {
+        set({ authUser: res.data });
+        toast.success("Logged in successfully");
+        const store = get();
+        if (store && store.connectSocket) {
+          store.connectSocket();
+        } else {
+          console.error("connectSocket function is not available in the store");
+        }
+      } else {
+        console.error("Unexpected response structure:", res);
+        toast.error("Login failed: Unexpected response structure");
+      }
     } catch (error) {
-      toast.error(error.response.data.message);
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message);
+      } else {
+        console.error("Unexpected error structure:", error);
+        toast.error("Login failed: Unexpected error");
+      }
     } finally {
       set({ isLoggingIn: false });
     }
@@ -64,7 +82,12 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Logged out successfully");
       get().disconnectSocket();
     } catch (error) {
-      toast.error(error.response.data.message);
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message);
+      } else {
+        console.error("Unexpected error structure:", error);
+        toast.error("Logout failed: Unexpected error");
+      }
     }
   },
 
@@ -75,8 +98,12 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: res.data });
       toast.success("Profile updated successfully");
     } catch (error) {
-      console.log("error in update profile:", error);
-      toast.error(error.response.data.message);
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message);
+      } else {
+        console.error("Unexpected error structure:", error);
+        toast.error("Profile update failed: Unexpected error");
+      }
     } finally {
       set({ isUpdatingProfile: false });
     }

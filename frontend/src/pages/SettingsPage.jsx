@@ -1,7 +1,6 @@
-import React from 'react'
-import { useThemeStore } from '../store/useThemeStore.js';
-import { Send } from 'lucide-react';
-import { THEMES } from '../constants/index.js';
+import { THEMES } from "../constants";
+import { useThemeStore } from "../store/useThemeStore";
+import { Send } from "lucide-react";
 
 const PREVIEW_MESSAGES = [
   { id: 1, content: "Hey! How's it going?", isSent: false },
@@ -9,7 +8,8 @@ const PREVIEW_MESSAGES = [
 ];
 
 const SettingsPage = () => {
-  const {theme,setTheme} = useThemeStore();
+  const { theme, setTheme } = useThemeStore();
+
   return (
     <div className="h-screen container mx-auto px-4 pt-20 max-w-5xl">
       <div className="space-y-6">
@@ -111,7 +111,6 @@ const SettingsPage = () => {
         </div>
       </div>
     </div>
-  )
-}
-
-export default SettingsPage
+  );
+};
+export default SettingsPage;
